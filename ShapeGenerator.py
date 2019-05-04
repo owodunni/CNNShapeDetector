@@ -70,7 +70,7 @@ class Shape:
                 -1)
         return img
 
-class Shapeinfo:
+class ShapeInfo:
     def __init__(
         self,
         shapes,
@@ -140,12 +140,8 @@ class ShapeGenerator:
                 imageInfo,
                 shapeInfo)
 
-                print(shape)
                 if(shape.valid(shapeList)):
-                    print("Shape is valid breaking loop")
                     break
-                else:
-                    print("Invalid shape generating new")
 
             shapeList.append(shape)
 
@@ -155,16 +151,3 @@ class ShapeGenerator:
             "Image": img,
             "ShapeList": shapeList
         }
-
-ShapeDict = ShapeGenerator.GenerateImageWithShapes(
-    ImageInfo(
-        size = (600,600),
-        heightInterval = (40, 80)),
-    Shapeinfo(
-        shapes = 50,
-        widthInterval = (10, 50), 
-        heightInterval = (10, 150)))
-
-cv2.imshow('image',ShapeDict["Image"])
-cv2.waitKey(0)
-cv2.destroyAllWindows()
