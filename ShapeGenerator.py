@@ -17,12 +17,13 @@ class Shape:
         self.height = height
         self.width = width
         self.center = center
+
         self.p1 = (
                 (int)(self.center[0] - self.width/2),
                 (int)(self.center[1] - self.width/2))
         self.p2 = (
-                (int)(self.center[0] + self.width/2),
-                (int)(self.center[1] + self.width/2))
+                (int)(self.center[0] + self.width/2 + 0.5),
+                (int)(self.center[1] + self.width/2 + 0.5))
 
     def __repr__(self):
         return "Shape()"
@@ -32,13 +33,10 @@ class Shape:
         ", Width: " + str(self.width) +\
         ", Center: " + str(self.center)
 
-    @staticmethod
-    def Overlap1D(min1, min2, max1, max2):
-        return max1 >= min2 and max2 >= min1
-
     def Overlap(self,shape):
-        return (self.Overlap1D(self.p1[0], self.p2[0], shape.p1[0], shape.p2[0]) and
-                self.Overlap1D(self.p1[1], self.p2[1], shape.p1[1], shape.p2[1]))
+        # https://gamedev.stackexchange.com/questions/586/what-is-the-fastest-way-to-work-out-2d-bounding-box-intersection
+        return ((abs(self.center[0] - shape.center[0]) < (self.width + shape.width)/2) and
+        (abs(self.center[1] - shape.center[1]) < (self.width + shape.width)/2))
 
     def valid(
         self,
