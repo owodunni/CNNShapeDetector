@@ -17,18 +17,34 @@ class Shape:
         self.height = height
         self.width = width
         self.center = center
+        self.p1 = (
+                (int)(self.center[0] - self.width/2),
+                (int)(self.center[1] - self.width/2))
+        self.p2 = (
+                (int)(self.center[0] + self.width/2),
+                (int)(self.center[1] + self.width/2))
 
     def __repr__(self):
         return "Shape()"
     def __str__(self):
         return "Shape: " + str(self.shapeType) +\
-        " ,Height: " + str(self.height) +\
-        " ,Width: " + str(self.width) +\
-        " , Center: " + str(self.center)
-    
+        ", Height: " + str(self.height) +\
+        ", Width: " + str(self.width) +\
+        ", Center: " + str(self.center)
+
+    def Overlap(self,shape):
+        for x in range(0,2):
+            if(shape.p2[x] < self.p1[x] or
+            shape.p1[x] > self.p2[x]):
+                return False
+        return True
+
     def valid(
         self,
         shapeList):
+        for shape in shapeList:
+            if(shape.Overlap(self)):
+                return False
         return True
     
     def draw(
@@ -36,24 +52,22 @@ class Shape:
         img,
         imgHeight):
 
+        shapeColor = self.height + imgHeight
+
         if(ShapeType.rectangle == self.shapeType):
-            p1 = (
-                self.center[0] - self.width/2,
-                self.center[1] - self.width/2)
-            p2 = (
-                self.center[0] + self.width/2,
-                self.center[1] + self.width/2)
             cv2.rectangle(
                 img,
-                p1,
-                p2,
-                self.height + imgHeight,
-                3)
+                self.p1,
+                self.p2,
+                (shapeColor, shapeColor, shapeColor),
+                -1)
         else:
-            cv2.circle(img,
-            self.center,
-            self.width/2,
-            self.height + imgHeight, -1)
+            cv2.circle(
+                img,
+                self.center,
+                int(self.width/2),
+                (shapeColor, shapeColor, shapeColor),
+                -1)
         return img
 
 class Shapeinfo:
@@ -72,9 +86,41 @@ class ImageInfo:
         size,
         heightInterval):
         self.size = size
-        self.heightInterval = heightInterval
+        self.height = random.randint(
+            heightInterval[0],
+            heightInterval[1])
 
 class ShapeGenerator:
+
+    @staticmethod
+    def GenerateShape(
+        imageInfo,
+        shapeInfo):
+        shapeType = random.choice(list(ShapeType))
+
+        shapeWidth = random.randint(
+            shapeInfo.widthInterval[0],
+            shapeInfo.widthInterval[1])
+
+        shapeHeight = random.randint(
+            shapeInfo.heightInterval[0],
+            shapeInfo.heightInterval[1])
+
+            # Limit shape width so that shapes can not be outside image
+        shapeCenter = (
+            random.randint(
+                (int)(shapeWidth/2),
+                imageInfo.size[0] - (int)(shapeWidth/2)),
+            random.randint(
+                (int)(shapeWidth/2),
+                imageInfo.size[1] - (int)(shapeWidth/2)))
+
+        shape = Shape(
+            shapeType,
+            shapeHeight,
+            shapeWidth,
+            shapeCenter)
+        return shape
 
     @staticmethod
     def GenerateImageWithShapes(
@@ -83,54 +129,42 @@ class ShapeGenerator:
         # Create a black image
         img = np.zeros(imageInfo.size, np.uint8)
 
-        imgHeight = random.randint(
-            imageInfo.heightInterval[0],
-            imageInfo.heightInterval[1])
+        img.fill(imageInfo.height)
 
-        print("Image height: " + str(imgHeight))
-
-        img.fill(imgHeight)
-
+        shapeList = list()
         for i in range(0, shapeInfo.shapes):
             
-            shapeType = random.choice(list(ShapeType))
+            shape = None
+            while True:
+                shape = ShapeGenerator.GenerateShape(
+                imageInfo,
+                shapeInfo)
 
-            shapeWidth = random.randint(
-                shapeInfo.widthInterval[0],
-                shapeInfo.widthInterval[1])
+                print(shape)
+                if(shape.valid(shapeList)):
+                    print("Shape is valid breaking loop")
+                    break
+                else:
+                    print("Invalid shape generating new")
 
-            shapeHeight = random.randint(
-                shapeInfo.heightInterval[0],
-                shapeInfo.heightInterval[1])
+            shapeList.append(shape)
 
-            shapeCenter = (
-                random.randint(
-                    0,
-                    imageInfo.size[0]),
-                random.randint(
-                    0,
-                    imageInfo.size[1]))
-            shape = Shape(
-                shapeType,
-                shapeHeight,
-                shapeWidth,
-                shapeCenter)
-            
-            print(shape)
+            shape.draw(img, imageInfo.height)
 
-            #shape.draw(img, imgHeight)
+        return {
+            "Image": img,
+            "ShapeList": shapeList
+        }
 
-        return img
-
-img = ShapeGenerator.GenerateImageWithShapes(
+ShapeDict = ShapeGenerator.GenerateImageWithShapes(
     ImageInfo(
-        size = (200,200),
+        size = (600,600),
         heightInterval = (40, 80)),
     Shapeinfo(
-        shapes = 5,
+        shapes = 50,
         widthInterval = (10, 50), 
-        heightInterval = (10, 20)))
+        heightInterval = (10, 150)))
 
-#cv2.imshow('image',img)
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
+cv2.imshow('image',ShapeDict["Image"])
+cv2.waitKey(0)
+cv2.destroyAllWindows()
