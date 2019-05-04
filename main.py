@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from ShapeGenerator import ShapeGenerator, ImageInfo, ShapeInfo
 
 import numpy as np
@@ -5,25 +6,32 @@ import cv2
 import tensorflow as tf
 
 imageInfo = ImageInfo(
-                size = (64,64),
+                size = (500,500),
                 heightInterval = (40, 80))
 shapeInfo = ShapeInfo(
-                shapes = 1,
-                widthInterval = (2, 10), 
+                shapes = 100,
+                widthInterval = (10, 20), 
                 heightInterval = (10, 150))
 
-#X = tf.placeholder(
-#    tf.float32,
-#    [None, imageInfo.size[1], imageInfo.size[0], 1])
-#Y = tf.placeholder(tf.float32, [None, 2])
+tf.logging.set_verbosity(tf.logging.INFO)
+
+  # Input Layer
+  #input_layer = tf.reshape(features["x"], [-1, 64, 64, 1])
+
+#conv1 = tf.layers.conv2d(
+#    inputs=input_layer,
+#    filters=32,
+#    kernel_size=[5, 5],
+#    padding="same",
+#    activation=tf.nn.relu)
 
 #print ("X = " + str(X))
 #print ("Y = " + str(Y))
 
-#ShapeDict = ShapeGenerator.GenerateImageWithShapes(imageInfo, shapeInfo)
+ShapeDict = ShapeGenerator.GenerateImageWithShapes(imageInfo, shapeInfo)
 
 #print(ShapeDict["ShapeList"][0])
 
-#cv2.imshow('image',ShapeDict["Image"])
-#cv2.waitKey(0)
-#cv2.destroyAllWindows()
+cv2.imshow('image',ShapeDict["Image"])
+cv2.waitKey(0)
+cv2.destroyAllWindows()

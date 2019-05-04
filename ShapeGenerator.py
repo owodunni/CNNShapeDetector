@@ -32,12 +32,13 @@ class Shape:
         ", Width: " + str(self.width) +\
         ", Center: " + str(self.center)
 
+    @staticmethod
+    def Overlap1D(min1, min2, max1, max2):
+        return max1 >= min2 and max2 >= min1
+
     def Overlap(self,shape):
-        for x in range(0,2):
-            if(shape.p2[x] < self.p1[x] or
-            shape.p1[x] > self.p2[x]):
-                return False
-        return True
+        return (self.Overlap1D(self.p1[0], self.p2[0], shape.p1[0], shape.p2[0]) and
+                self.Overlap1D(self.p1[1], self.p2[1], shape.p1[1], shape.p2[1]))
 
     def valid(
         self,
