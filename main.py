@@ -6,17 +6,23 @@ import cv2
 import tensorflow as tf
 
 imageInfo = ImageInfo(
-                size = (500,500),
-                heightInterval = (40, 80))
+                size = (64,64),
+                heightInterval = (0, 100))
 shapeInfo = ShapeInfo(
-                shapes = 100,
-                widthInterval = (10, 20), 
+                shapes = 1,
+                widthInterval = (20, 50),
                 heightInterval = (10, 150))
 
 tf.logging.set_verbosity(tf.logging.INFO)
 
-  # Input Layer
-  #input_layer = tf.reshape(features["x"], [-1, 64, 64, 1])
+nmbTrainSamples = 1000
+nmbTestSamples = 100
+
+(train_images, train_labels), (test_images, test_labels) = ShapeGenerator.GenerateDataSet(
+    imageInfo, shapeInfo, nmbTrainSamples, nmbTestSamples)
+
+# Input Layer
+#input_layer = tf.reshape(features["x"], [-1, 64, 64, 1])
 
 #conv1 = tf.layers.conv2d(
 #    inputs=input_layer,
@@ -28,10 +34,8 @@ tf.logging.set_verbosity(tf.logging.INFO)
 #print ("X = " + str(X))
 #print ("Y = " + str(Y))
 
-ShapeDict = ShapeGenerator.GenerateImageWithShapes(imageInfo, shapeInfo)
+for x in range(0, nmbTrainSamples):
+    cv2.imshow('image',train_images[x,:,:])
+    cv2.waitKey(100)
 
-#print(ShapeDict["ShapeList"][0])
-
-cv2.imshow('image',ShapeDict["Image"])
-cv2.waitKey(0)
 cv2.destroyAllWindows()

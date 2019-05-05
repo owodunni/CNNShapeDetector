@@ -85,9 +85,7 @@ class ImageInfo:
         size,
         heightInterval):
         self.size = size
-        self.height = random.randint(
-            heightInterval[0],
-            heightInterval[1])
+        self.heightInterval = heightInterval
 
 class ShapeGenerator:
 
@@ -128,6 +126,10 @@ class ShapeGenerator:
         # Create a black image
         img = np.zeros(imageInfo.size, np.uint8)
 
+        imageInfo.height = random.randint(
+            imageInfo.heightInterval[0],
+            imageInfo.heightInterval[1])
+
         img.fill(imageInfo.height)
 
         shapeList = list()
@@ -146,7 +148,31 @@ class ShapeGenerator:
 
             shape.draw(img, imageInfo.height)
 
-        return {
-            "Image": img,
-            "ShapeList": shapeList
-        }
+        return img, shapeList
+
+    @staticmethod
+    def GenerateSamples(
+        imageInfo,
+        shapeInfo,
+        numberOfSamples):
+
+
+        samples = np.zeros((numberOfSamples, imageInfo.size[0], imageInfo.size[1]), np.uint8)
+        labels = np.zeros(numberOfSamples, np.uint8)
+
+        for x in range(0, numberOfSamples):
+            img, shapeList = ShapeGenerator.GenerateImageWithShapes(imageInfo, shapeInfo)
+            samples[x,:,:] = img
+            labels[x] = shapeList[0].shapeType.value
+        return samples, labels
+
+    @staticmethod
+    def GenerateDataSet(
+        imageInfo,
+        shapeInfo,
+        nmbTrainingSamples,
+        nmbTestSamples):
+
+        train_images, train_labels = ShapeGenerator.GenerateSamples(imageInfo, shapeInfo, nmbTrainingSamples)
+        test_images, test_labels = ShapeGenerator.GenerateSamples(imageInfo, shapeInfo, nmbTestSamples)
+        return (train_images, train_labels), (test_images, test_labels)
